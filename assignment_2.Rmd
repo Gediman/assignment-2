@@ -79,41 +79,42 @@ Ces deux observations sont liées au fait que les deux jeux de données ont ét�
 ####P-value
 
 ```{r}
-t.test(as.data.frame(ptest_1), as.data.frame(ptest_2))
+t.test(as.data.frame(ptest_1))
+t.test(as.data.frame(ptest_2))
 ```
 
 ##Exercice 2
 
 ```{r}
-devtools::install_github("ewan/stats_course", subdir="data/stress_shift")
+devtools::install_github("ewan/stats_course", subdir = "data/stress_shift")
 ```
 
 ####Task A
 
 ```{r}
-stress_shift_3dict <- dplyr::filter(stressshift::stress_shift_unamb, Dict=="W1802" | Dict=="J1917" | Dict=="C1687")
+stress_shift_3dict <- dplyr::filter(stressshift::stress_shift_unamb, Dict == "W1802" | Dict == "J1917" | Dict == "C1687")
 print(nrow(stress_shift_3dict))
 ```
 
 ####Task B
 
 ```{r}
-stress_shift_3dict_using_pipe <- stressshift::stress_shift_unamb %>% dplyr::filter(Dict=="W1802" | Dict=="J1917" | Dict=="C1687")
-print(identical(stress_shift_3dict,stress_shift_3dict_using_pipe))
+stress_shift_3dict_using_pipe <- stressshift::stress_shift_unamb %>% dplyr::filter(Dict == "W1802" | Dict == "J1917" | Dict == "C1687")
+print(identical(stress_shift_3dict, stress_shift_3dict_using_pipe))
 ```
 
 ####Task C
 
 ```{r}
-stress_shift_3dict_nouns <- dplyr::filter(stress_shift_3dict, Category=="Noun")
-stress_shift_3dict_verbs <- dplyr::filter(stress_shift_3dict, Category=="Verb")
+stress_shift_3dict_nouns <- dplyr::filter(stress_shift_3dict, Category == "Noun")
+stress_shift_3dict_verbs <- dplyr::filter(stress_shift_3dict, Category == "Verb")
 
 stress_shift_3dict_using_bind <- dplyr::bind_rows(stress_shift_3dict_nouns, stress_shift_3dict_verbs)
 stress_shift_3dict_using_reversed <- dplyr::bind_rows(stress_shift_3dict_verbs, stress_shift_3dict_nouns)
 
-if (identical(stress_shift_3dict_using_bind, stress_shift_3dict)){
+if (identical(stress_shift_3dict_using_bind, stress_shift_3dict)) {
   print("Celui avec les noms puis les verbes est identique.")
-} else if (identical(stress_shift_3dict_using_reversed, stress_shift_3dict)){
+} else if (identical(stress_shift_3dict_using_reversed, stress_shift_3dict)) {
   print("Celui avec les verbes puis les noms est identique.")
 } else {
   print("Aucun n'est identique au précédent : erreur !")
@@ -124,22 +125,24 @@ La fonction identical vérifie si les objets passés en arguments sont exactemen
 Si je devais utiliser ces données, cela importerait jusqu'à un certain point. En effet, il est essentiel de savoir quelles données on manipule si on ne veut pas faire d'erreur d'inattention. Pour éviter ce genre de problèmes il vaut mieux appeller précisément les données dont on a besoin (ergo, extraire les noms si on a besoin des noms, la même pour les verbes) et si on fusionne la table les contenant, alors soit cela doit indifférer, soit être capable de retrouver quelle donnée correspond à quoi.
 
 ```{r}
-print(identical(1,3/3))
-print(identical("1","3/3"))
+print(identical(1, 3 / 3))
+print(identical("1", "3/3"))
 ```
 
 #### Task D
 
 ```{r}
-stress_shift_nouns <- dplyr::filter(stressshift::stress_shift_unamb, Category=="Noun")
+stress_shift_nouns <- dplyr::filter(stressshift::stress_shift_unamb, Category == "Noun")
 stress_shift_nouns_selected <- dplyr::select(stress_shift_nouns, Word, Dict, Syllable)
 stress_shift_nouns_renamed <- dplyr::rename(stress_shift_nouns_selected,
-                                            Syllable_Noun = Syllable) 
+  Syllable_Noun = Syllable
+)
 
-stress_shift_verbs <- dplyr::filter(stressshift::stress_shift_unamb, Category=="Verb")
+stress_shift_verbs <- dplyr::filter(stressshift::stress_shift_unamb, Category == "Verb")
 stress_shift_verbs_selected <- dplyr::select(stress_shift_verbs, Word, Dict, Syllable)
 stress_shift_verbs_renamed <- dplyr::rename(stress_shift_verbs_selected,
-                                            Syllable_Verb = Syllable) 
+  Syllable_Verb = Syllable
+)
 
 stress_shift_wide <- dplyr::inner_join(stress_shift_nouns_renamed, stress_shift_verbs_renamed)
 ```
@@ -149,23 +152,117 @@ Inner_join fusionne les deux tables passées en arguments en une seule par les n
 ###Task E
 
 ```{r}
-p <- ggplot2::ggplot(stressshift::stress_shift_unamb, 
-        ggplot2::aes(x=Category, fill=Syllable)) + ggplot2::geom_bar(colour="black")
-p <- p + ggplot2::scale_fill_brewer(palette="Dark2")
+p <- ggplot2::ggplot(
+  stressshift::stress_shift_unamb,
+  ggplot2::aes(x = Category, fill = Syllable)
+) + ggplot2::geom_bar(colour = "black")
+p <- p + ggplot2::scale_fill_brewer(palette = "Dark2")
 print(p)
 ```
 
 ####Task F
 
 ```{r}
-data_regroup = dplyr::group_by(stress_shift_wide, Word)
+data_regroup <- dplyr::group_by(stress_shift_wide, Word)
 
-stress_shift_byword = dplyr::summarise(data_regroup, Noun_Percent_Syll_1=  (sum(Syllable_Noun=="Syllable 1")/n())*100, 
-            Verb_Percent_Syll_1=  (sum(Syllable_Verb=="Syllable 1")/n())*100)
+stress_shift_byword <- dplyr::summarise(data_regroup,
+  Noun_Percent_Syll_1 = (sum(Syllable_Noun == "Syllable 1") / n()) * 100,
+  Verb_Percent_Syll_1 = (sum(Syllable_Verb == "Syllable 1") / n()) * 100
+)
 
 print(stress_shift_byword)
 print(nrow(stress_shift_byword))
 ```
 
 ####Task G
+
+```{r}
+p <- ggplot2::ggplot(stress_shift_byword, ggplot2::aes(x = Noun_Percent_Syll_1, y = Verb_Percent_Syll_1))
+p <- p + ggplot2::geom_point()
+print(p)
+```
+
+####Task h
+
+```{r}
+stress_shift_wide_all <- dplyr::left_join(stress_shift_nouns_renamed, stress_shift_verbs_renamed)
+
+
+data_regroup_all <- dplyr::group_by(stress_shift_wide_all, Word)
+
+stress_shift_byword_all <- dplyr::summarise(data_regroup_all,
+  Noun_Percent_Syll_1 = (sum(Syllable_Noun == "Syllable 1") / n()) * 100,
+  Verb_Percent_Syll_1 = (sum(Syllable_Verb == "Syllable 1") / n()) * 100
+)
+```
+
+#Exercice 3
+
+```{r}
+
+if (!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(12)
+a <- data.frame("group" = "A", "value" = rnorm(50, 3, 2))
+b <- data.frame("group" = "B", "value" = rnorm(50, 4, 2))
+data <- dplyr::bind_rows(a, b)
+set.seed(NULL)
+
+t.test(a$value, b$value)
+```
+Le test essaie de déterminer dans quelle mesure les deux échantillons proviennent d'un ensemble. Il propose, entre autre, la moyenne de chacun : on veut donc savoir le rapport à l'hypothèse nulle, si les moyennes sont équivalents, ou tout du moins très proches, en fonction d'un risque donné. On a ici une p-value très basse (5.974e-05).
+```{r}
+if (!exists(".Random.seed")) set.seed(NULL)
+previous_seed <- .Random.seed
+set.seed(12)
+a <- data.frame("group" = "A", "value" = rnorm(5, 3, 2))
+b <- data.frame("group" = "B", "value" = rnorm(5, 4, 2))
+data <- dplyr::bind_rows(a, b)
+set.seed(NULL)
+
+t.test(a$value, b$value)
+```
+L'intervalle de confiance, c'est-à-dire l'intervalle dans lequel la valeur estimée se retrouvera 95 fois sur 100 est pour ce jeu de données beaucoup plus grand que pour le précédent. Le fait d'avoir 10 fois moins de valeur rend l'estimation de la moyenne moins fiable car beaucoup plus dépendante de l'aléa du tirage (et de par exemple la présence d'outlyer) - contrairement à l'estimation précédente.
+La p value est ici supérieure au seuil de significativité (0.05%), on peut donc accepter l'hypothèse null contrairement aux données précédentes.
+#Exercice 4
+
+```{r}
+set.seed(12)
+a_un <- data.frame("group" = "A", "value" = rnorm(5, 3, 2))
+b_un <- data.frame("group" = "B", "value" = rnorm(5, 4, 2))
+data_un <- dplyr::bind_rows(a_un, b_un)
+
+a_deux <- data.frame("group" = "A", "value" = rnorm(50, 3, 2))
+b_deux <- data.frame("group" = "B", "value" = rnorm(50, 4, 2))
+data_deux <- dplyr::bind_rows(a_deux, b_deux)
+
+
+a_trois <- data.frame("group" = "A", "value" = rnorm(5, 3, 6))
+b_trois <- data.frame("group" = "B", "value" = rnorm(5, 4, 6))
+data_trois <- dplyr::bind_rows(a_trois, b_trois)
+
+a_quatre <- data.frame("group" = "A", "value" = rnorm(50, 3, 6))
+b_quatre <- data.frame("group" = "B", "value" = rnorm(50, 4, 6))
+data_quatre <- dplyr::bind_rows(a_quatre, b_quatre)
+
+a_cinq <- data.frame("group" = "A", "value" = rnorm(5, 3, 2))
+b_cinq <- data.frame("group" = "B", "value" = rnorm(5, 5, 2))
+data_cinq <- dplyr::bind_rows(a_cinq, b_cinq)
+
+a_six <- data.frame("group" = "A", "value" = rnorm(50, 3, 2))
+b_six <- data.frame("group" = "B", "value" = rnorm(50, 5, 2))
+data_six <- dplyr::bind_rows(a_six, b_six)
+
+a_sept <- data.frame("group" = "A", "value" = rnorm(5, 3, 6))
+b_sept <- data.frame("group" = "B", "value" = rnorm(5, 5, 6))
+data_sept <- dplyr::bind_rows(a_sept, b_sept)
+
+a_huit <- data.frame("group" = "A", "value" = rnorm(50, 3, 6))
+b_huit <- data.frame("group" = "B", "value" = rnorm(50, 5, 6))
+data_huit <- dplyr::bind_rows(a_huit, b_huit)
+
+set.seed(NULL)
+```
+
+
 
