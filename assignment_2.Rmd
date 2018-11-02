@@ -1,0 +1,76 @@
+---
+title: "assignment_2"
+author: "Tytgat"
+date: "2 novembre 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+source("functions_2.R")
+#install.packages("styler")
+```
+
+## Exercice 1
+
+#Permutation tests
+```{r}
+iris_subset_1 <- iris[c(89:94, 108:112), ]
+iris_subset_2 <- iris[88:114, ]
+
+permuted_1 <- permutation_twogroups(
+  iris_subset_1,
+  "Sepal.Width",
+  "Species",
+  "versicolor",
+  "virginica",
+  difference_in_medians
+)
+
+permuted_2 <- permutation_twogroups(
+  iris_subset_2,
+  "Sepal.Width",
+  "Species",
+  "versicolor",
+  "virginica",
+  difference_in_medians
+)
+```
+
+#Sous-groupes et histogrammes
+
+```{r}
+ptest_1 <- tibble::as_tibble(permuted_1["permuted"])
+ptest_2 <- tibble::as_tibble(permuted_2["permuted"])
+
+observed_test_1 <- permuted_1["observed"]
+observed_test_2 <- permuted_2["observed"]
+
+low_bind <- min(ptest_1, ptest_2)
+high_bind <- max(ptest_1, ptest_2)
+
+p_1 <- ggplot2::ggplot(ptest_1, ggplot2::aes(x = permuted)) +
+  ggplot2::geom_histogram(fill = "#FFD86D", colour = "black")
+p_1 <- p_1 + ggplot2::geom_vline(xintercept = unlist(observed_test_1))
+p_1 <- p_1 + ggplot2::xlim(low_bind, high_bind)
+print(p_1)
+
+p_2 <- ggplot2::ggplot(ptest_2, ggplot2::aes(x = permuted)) +
+  ggplot2::geom_histogram(fill = "#FFD86D", colour = "black")
+p_2 <- p_2 + ggplot2::geom_vline(xintercept = unlist(observed_test_2))
+p_2 <- p_2 + ggplot2::xlim(low_bind, high_bind)
+print(p_2)
+```
+
+####Interprétation
+
+Les deux histogrammes présentent des formes très différentes. Le premier jeu de données qui y est représenté, est vide au centre et plus présent sur ses extrêmes. A l'inverse le second suit une représentation pour régulière, plus proche d'une loi normale de distribution, avec une forte présence au centre, qui diminue et allant vers les extremums (même si on a toujours des colonnes vides, juste en dessous de 0). 
+
+La valeur observée des deux sets se situe à un endroit similaire, vers -0,25, mais est plut petite pour le premier groupe (vers 500). 
+
+Ces deux observations sont liées au fait que les deux jeux de données ont été crée avec des sous-groupes de données de tailles différentes (6 pour l'un, 13 pour l'autre - soit du simple au double). Cela montre bien que la façon de regrouper des données, qui peut être très arbitraire, peut grandement affecter la façon dont on les analyse.
+
+
+
