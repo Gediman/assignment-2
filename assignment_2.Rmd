@@ -72,5 +72,19 @@ La valeur observée des deux sets se situe à un endroit similaire, vers -0,25, 
 
 Ces deux observations sont liées au fait que les deux jeux de données ont été crée avec des sous-groupes de données de tailles différentes (6 pour l'un, 13 pour l'autre - soit du simple au double). Cela montre bien que la façon de regrouper des données, qui peut être très arbitraire, peut grandement affecter la façon dont on les analyse.
 
+####P-value
+
+```{r}
+t.test(as.data.frame(ptest_1), as.data.frame(ptest_2))
+```
+
+##Exercice 2
+
+```{r}
+install.packages("devtools", force=TRUE)
+install.packages("dplyr", force = TRUE)
+install.packages("magrittr", force = TRUE)
+devtools::install_github("ewan/stats_course", subdir="data/stress_shift")
+```
 
 
